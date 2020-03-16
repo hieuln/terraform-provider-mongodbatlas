@@ -235,6 +235,7 @@ func testAccMongoDBAtlasAlertConfigurationConfig(projectID string, enabled bool)
 				delay_min     = 0
 				sms_enabled   = false
 				email_enabled = true
+				roles = ["GROUP_DATA_ACCESS_READ_ONLY", "GROUP_CLUSTER_MANAGER", "GROUP_DATA_ACCESS_ADMIN"]
 			}
 		
 			matcher {
@@ -267,6 +268,7 @@ func testAccMongoDBAtlasAlertConfigurationConfigNotifications(projectID string, 
 				delay_min     = 0
 				sms_enabled   = %[3]t
 				email_enabled = %[4]t
+				roles = ["GROUP_DATA_ACCESS_READ_ONLY"]
 			}
 
 			notification {
@@ -293,6 +295,7 @@ func testAccMongoDBAtlasAlertConfigurationConfigWithMatchers(projectID string, e
 				delay_min     = 0
 				sms_enabled   = %t
 				email_enabled = %t
+				roles = ["GROUP_DATA_ACCESS_READ_ONLY", "GROUP_CLUSTER_MANAGER"]
 			}
 		
 			matcher {
@@ -324,6 +327,7 @@ func testAccMongoDBAtlasAlertConfigurationConfigWithMetrictUpdated(projectID str
 				delay_min     = 0
 				sms_enabled   = false
 				email_enabled = true
+				roles = ["GROUP_DATA_ACCESS_READ_ONLY"]
 			}
 		
 			matcher {
