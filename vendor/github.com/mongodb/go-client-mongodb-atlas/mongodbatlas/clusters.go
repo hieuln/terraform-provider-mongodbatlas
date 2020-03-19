@@ -25,7 +25,7 @@ type ClustersService interface {
 //ClustersServiceOp handles communication with the Cluster related methods
 // of the MongoDB Atlas API
 type ClustersServiceOp struct {
-	client *Client
+	Client RequestDoer
 }
 
 var _ ClustersService = &ClustersServiceOp{}
@@ -69,6 +69,14 @@ type ReplicationSpec struct {
 	RegionsConfig map[string]RegionsConfig `json:"regionsConfig,omitempty"`
 }
 
+// ConnectionStrings configuration for applications use to connect to this cluster
+type ConnectionStrings struct {
+	Standard          string            `json:"standard,omitempty"`
+	StandardSrv       string            `json:"standardSrv,omitempty"`
+	AwsPrivateLink    map[string]string `json:"awsPrivateLink,omitempty"`
+	AwsPrivateLinkSrv map[string]string `json:"awsPrivateLinkSrv,omitempty"`
+}
+
 // Cluster represents MongoDB cluster.
 type Cluster struct {
 	AutoScaling              AutoScaling              `json:"autoScaling,omitempty"`
@@ -96,6 +104,7 @@ type Cluster struct {
 	ReplicationSpecs         []ReplicationSpec        `json:"replicationSpecs,omitempty"`
 	SrvAddress               string                   `json:"srvAddress,omitempty"`
 	StateName                string                   `json:"stateName,omitempty"`
+	ConnectionStrings        *ConnectionStrings       `json:"connectionStrings,omitempty"`
 }
 
 // ProcessArgs represents the advanced configuration options for the cluster
@@ -182,13 +191,13 @@ func (s *ClustersServiceOp) List(ctx context.Context, groupID string, listOption
 		return nil, nil, err
 	}
 
-	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
+	req, err := s.Client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	root := new(clustersResponse)
-	resp, err := s.client.Do(ctx, req, root)
+	resp, err := s.Client.Do(ctx, req, root)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -211,13 +220,13 @@ func (s *ClustersServiceOp) Get(ctx context.Context, groupID string, clusterName
 	escapedEntry := url.PathEscape(clusterName)
 	path := fmt.Sprintf("%s/%s", basePath, escapedEntry)
 
-	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
+	req, err := s.Client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	root := new(Cluster)
-	resp, err := s.client.Do(ctx, req, root)
+	resp, err := s.Client.Do(ctx, req, root)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -234,13 +243,13 @@ func (s *ClustersServiceOp) Create(ctx context.Context, groupID string, createRe
 
 	path := fmt.Sprintf(clustersPath, groupID)
 
-	req, err := s.client.NewRequest(ctx, http.MethodPost, path, createRequest)
+	req, err := s.Client.NewRequest(ctx, http.MethodPost, path, createRequest)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	root := new(Cluster)
-	resp, err := s.client.Do(ctx, req, root)
+	resp, err := s.Client.Do(ctx, req, root)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -258,13 +267,13 @@ func (s *ClustersServiceOp) Update(ctx context.Context, groupID string, clusterN
 	basePath := fmt.Sprintf(clustersPath, groupID)
 	path := fmt.Sprintf("%s/%s", basePath, clusterName)
 
-	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, updateRequest)
+	req, err := s.Client.NewRequest(ctx, http.MethodPatch, path, updateRequest)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	root := new(Cluster)
-	resp, err := s.client.Do(ctx, req, root)
+	resp, err := s.Client.Do(ctx, req, root)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -283,12 +292,12 @@ func (s *ClustersServiceOp) Delete(ctx context.Context, groupID string, clusterN
 	escapedEntry := url.PathEscape(clusterName)
 	path := fmt.Sprintf("%s/%s", basePath, escapedEntry)
 
-	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
+	req, err := s.Client.NewRequest(ctx, http.MethodDelete, path, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := s.client.Do(ctx, req, nil)
+	resp, err := s.Client.Do(ctx, req, nil)
 
 	return resp, err
 }
@@ -303,13 +312,13 @@ func (s *ClustersServiceOp) UpdateProcessArgs(ctx context.Context, groupID strin
 	basePath := fmt.Sprintf(clustersPath, groupID)
 	path := fmt.Sprintf("%s/%s/processArgs", basePath, clusterName)
 
-	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, updateRequest)
+	req, err := s.Client.NewRequest(ctx, http.MethodPatch, path, updateRequest)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	root := new(ProcessArgs)
-	resp, err := s.client.Do(ctx, req, root)
+	resp, err := s.Client.Do(ctx, req, root)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -328,13 +337,13 @@ func (s *ClustersServiceOp) GetProcessArgs(ctx context.Context, groupID string, 
 	escapedEntry := url.PathEscape(clusterName)
 	path := fmt.Sprintf("%s/%s/processArgs", basePath, escapedEntry)
 
-	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
+	req, err := s.Client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	root := new(ProcessArgs)
-	resp, err := s.client.Do(ctx, req, root)
+	resp, err := s.Client.Do(ctx, req, root)
 	if err != nil {
 		return nil, resp, err
 	}
