@@ -88,6 +88,31 @@ func resourceMongoDBAtlasCluster() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"connection_strings_endpoint": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"connection_strings_standard": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"connection_strings_standard_srv": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"connection_strings_private_link": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"connection_strings_private_link_srv": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"disk_size_gb": {
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -515,6 +540,29 @@ func resourceMongoDBAtlasClusterRead(d *schema.ResourceData, meta interface{}) e
 	}
 	if err := d.Set("cluster_type", cluster.ClusterType); err != nil {
 		return fmt.Errorf(errorClusterSetting, "cluster_type", clusterName, err)
+	}
+	log.Printf("[DEBUG] connection_strings: %+v", cluster.ConnectionStrings)
+	csPrivateLink := ""
+	csEndpoint := ""
+	for k, v := range cluster.ConnectionStrings.AwsPrivateLink {
+		csEndpoint = k
+		csPrivateLink = v
+	}
+
+	if err := d.Set("connection_strings_standard", cluster.ConnectionStrings.Standard); err != nil {
+		return fmt.Errorf(errorClusterSetting, "connection_strings_standard", clusterName, err)
+	}
+	if err := d.Set("connection_strings_standard_srv", cluster.ConnectionStrings.StandardSrv); err != nil {
+		return fmt.Errorf(errorClusterSetting, "connection_strings_standard_srv", clusterName, err)
+	}
+	if err := d.Set("connection_strings_private_link", csPrivateLink); err != nil {
+		return fmt.Errorf(errorClusterSetting, "connection_strings_private_link", clusterName, err)
+	}
+	if err := d.Set("connection_strings_private_link_srv", cluster.ConnectionStrings.AwsPrivateLinkSrv[csEndpoint]); err != nil {
+		return fmt.Errorf(errorClusterSetting, "connection_strings_private_link_srv", clusterName, err)
+	}
+	if err := d.Set("connection_strings_endpoint", csEndpoint); err != nil {
+		return fmt.Errorf(errorClusterSetting, "connection_strings_endpoint", clusterName, err)
 	}
 	if err := d.Set("disk_size_gb", cluster.DiskSizeGB); err != nil {
 		return fmt.Errorf(errorClusterSetting, "disk_size_gb", clusterName, err)
